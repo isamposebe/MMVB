@@ -39,16 +39,16 @@ function unzipFile($zipFile, $extractTo) {
 function createDatabase() {
     $db = new SQLite3('moex_data.db');
     $db->exec("CREATE TABLE IF NOT EXISTS Trades (
-        myNO INTEGER,
-        SECCODE TEXT,
-        BUYSELL TEXT,
-        myTIME TEXT,
-        ORDERNO INTEGER,
-        myACTION INTEGER,
-        PRICE REAL,
-        VOLUME INTEGER,
-        TRADENO TEXT,
-        TRADEPRICE TEXT
+        _NO INTEGER,
+        _SECCODE TEXT,
+        _BUYSELL TEXT,
+        _TIME TEXT,
+        _ORDERNO INTEGER,
+        _ACTION INTEGER,
+        _PRICE REAL,
+        _VOLUME INTEGER,
+        _TRADENO TEXT,
+        _TRADEPRICE TEXT
     )");
     return $db;
 }
