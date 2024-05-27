@@ -71,34 +71,20 @@
 
             // Проверяем наличие результатов
             if ($results) {
-                echo "<table>
-                        <tr>
-                            <th>NO</th>
-                            <th>SECCODE</th>
-                            <th>BUYSELL</th>
-                            <th>TIME</th>
-                            <th>ORDERNO</th>
-                            <th>ACTION</th>
-                            <th>PRICE</th>
-                            <th>VOLUME</th>
-                            <th>TRADENO</th>
-                            <th>TRADEPRICE</th>
-                        </tr>
-                        <tbody>";
-                
+                               
                 // Отображаем результаты в таблице
                 while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
                     echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['myNO']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['SECCODE']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['BUYSELL']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['myTIME']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['ORDERNO']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['myACTION']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['PRICE']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['VOLUME']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['TRADENO']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['TRADEPRICE']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_NO']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_SECCODE']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_BUYSELL']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_TIME']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_ORDERNO']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_ACTION']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_PRICE']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_VOLUME']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_TRADENO']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_TRADEPRICE']) . "</td>";
                     echo "</tr>";
                 }
                 
