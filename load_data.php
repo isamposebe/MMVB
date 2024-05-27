@@ -78,6 +78,12 @@ function insertData($db, $filePath) {
             $query = "INSERT INTO Trades (myNo, SECCODE, BUYSELL, myTIME, ORDERNO, myACTION, PRICE, VOLUME, TRADENO, TRADEPRICE) 
                       VALUES ('$no', '$seccode', '$buysell', '$time', '$orderno', '$action', '$price', '$volume', '$tradeno', '$tradeprice')";
             $db->exec($query);
+            
+            if (!$db->exec($query)) {
+                echo "Ошибка вставки данных: " . $db->lastErrorMsg() . "<br>";
+            } else {
+                echo "Вставлены данные: $no, $seccode, $buysell, $time, $orderno, $action, $price, $volume, $tradeno, $tradeprice<br>";
+            }
         }
         fclose($handle);
     } else {
