@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MOEX Trades</title>
+    <title>Валютный рынок (csv.zip, 3,3 Мб)</title>
     <style>
         table {
             width: 100%;
@@ -18,7 +18,7 @@
 </head>
 <body>
 
-    <h1>Trades from MOEX</h1>
+    <h1>Валютный рынок (csv.zip, 3,3 Мб)</h1>
 
     <?php
     try {

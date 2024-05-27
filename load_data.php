@@ -69,7 +69,7 @@ function insertData($db, $filePath) {
     }
 }
 
-$url = "https://www.moex.com/ru/orders?historicaldata"; // URL для скачивания данных
+$url = "https://fs.moex.com/files/18307"; // URL для скачивания данных
 $zipFilePath = "data.zip"; // Путь к ZIP файлу
 $csvFilePath = "Trades.csv"; // Путь к CSV файлу
 
