@@ -60,29 +60,35 @@ function insertData($db, $filePath) {
 
     // Открываем CSV файл и читаем его построчно
     if (($handle = fopen($filePath, "r")) !== FALSE) {
+        // Начинаем транзакцию
+        $db->exec('BEGIN TRANSACTION');
+        
+        $stmt = $db->prepare("INSERT INTO Trades (_NO, _SECCODE, _BUYSELL, _TIME, _ORDERNO, _ACTION, _PRICE, _VOLUME, _TRADENO, _TRADEPRICE) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        
         fgetcsv($handle); // Пропускаем заголовок
         while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-            $no = SQLite3::escapeString($data[0]);
-            $seccode = SQLite3::escapeString($data[1]);
-            $buysell = SQLite3::escapeString($data[2]);
-            $time = SQLite3::escapeString($data[3]);
-            $orderno = SQLite3::escapeString($data[4]);
-            $action = SQLite3::escapeString($data[5]);
-            $price = SQLite3::escapeString($data[6]);
-            $volume = SQLite3::escapeString($data[7]);
-            $tradeno = SQLite3::escapeString($data[8]);
-            $tradeprice = SQLite3::escapeString($data[9]);
-
-            // Вставляем данные в таблицу Trades
-            $query = "INSERT INTO Trades (myNO, SECCODE, BUYSELL, myTIME, ORDERNO, myACTION, PRICE, VOLUME, TRADENO, TRADEPRICE) 
-                      VALUES ('$no', '$seccode', '$buysell', '$time', '$orderno', '$action', '$price', '$volume', '$tradeno', '$tradeprice')";
+            // Устанавливаем параметры и выполняем запрос
+            $stmt->bindValue(1, $data[0]);
+            $stmt->bindValue(2, $data[1]);
+            $stmt->bindValue(3, $data[2]);
+            $stmt->bindValue(4, $data[3]);
+            $stmt->bindValue(5, $data[4]);
+            $stmt->bindValue(6, $data[5]);
+            $stmt->bindValue(7, $data[6]);
+            $stmt->bindValue(8, $data[7]);
+            $stmt->bindValue(9, $data[8]);
+            $stmt->bindValue(10, $data[9]);
             
-            if (!$db->exec($query)) {
+            if (!$stmt->execute()) {
                 echo "Ошибка вставки данных: " . $db->lastErrorMsg() . "<br>";
-            } else {
-                echo "Вставлены данные: $no, $seccode, $buysell, $time, $orderno, $action, $price, $volume, $tradeno, $tradeprice<br>";
+                $db->exec('ROLLBACK TRANSACTION');
+                return;
             }
         }
+        
+        // Завершаем транзакцию
+        $db->exec('COMMIT TRANSACTION');
         fclose($handle);
     } else {
         echo "Не удалось открыть CSV файл: $filePath";
