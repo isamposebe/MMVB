@@ -74,11 +74,17 @@ function import_csv_to_sqlite(&$pdo, $csv_path, $options = array())
         $insert_sth->execute($data);
         $inserted_rows++;
     }
-        }
-        fclose($handle);
-    } else {
-        echo "Не удалось открыть CSV файл: $filePath";
-    }
+    
+    $pdo->commit();
+    
+    fclose($csv_handle);
+    
+    return array(
+            'table' => $table,
+            'fields' => $fields,
+            'insert' => $insert_sth,
+            'inserted_rows' => $inserted_rows
+        );
 }
 
 $url = "https://fs.moex.com/files/18307"; // URL для скачивания данных
