@@ -8,5 +8,15 @@
     <form action="load_data.php" method="post">
         <button type="submit">Загрузить данные</button>
     </form>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Время сделки</th>
+                <th>Цена сделки</th>
+                <th>Объем сделки</th>
+            </tr>
+        </thead>
+    </table>
+
 </body>
 </html>
