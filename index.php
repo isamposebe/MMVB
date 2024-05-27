@@ -16,6 +16,13 @@
                 <th>Объем сделки</th>
             </tr>
         </thead>
+        <tbody>
+            <?php
+                // Подключаемся к базе данных SQLite
+                $db = new SQLite3('moex_data.db');
+                
+            ?>
+        </tbody>
     </table>
 
 </body>
