@@ -100,6 +100,29 @@ function insertData($db, $filePath) {
     }
 }
 
+// Поиск CSV файлов
+function findCsvFiles($directory) {
+    $csvFiles = []; // Массив для хранения найденных файлов
+
+    // Проверяем, существует ли указанный каталог
+    if (!is_dir($directory)) {
+        echo "Указанный каталог не существует.";
+        return $csvFiles;
+    }
+
+    // Рекурсивно обходим все файлы и каталоги в указанном каталоге
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory));
+    foreach ($iterator as $file) {
+        // Проверяем, является ли текущий элемент файлом и имеет ли расширение .csv
+        if ($file->isFile() && $file->getExtension() == 'csv') {
+            // Добавляем путь к найденному файлу в массив
+            $csvFiles[] = $file->getPathname();
+        }
+    }
+
+    return $csvFiles;
+}
+//$directory = ''; // Укажите путь к каталогу, в котором нужно искать файлы
 $url = "https://fs.moex.com/files/18307"; // URL для скачивания данных
 $zipFilePath = "data.zip"; // Путь к ZIP файлу
 $csvFilePath = "OrderLog20181229.csv"; // Путь к CSV файлу
