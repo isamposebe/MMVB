@@ -43,6 +43,27 @@
         }
     }
 
+    // Функция для вставки данных из CSV в базу данных
+    function insertData($db, $filePath) {
+        // Очищаем таблицу перед вставкой новых данных
+        $db->exec("DELETE FROM Trades");
+
+        // Открываем CSV файл и читаем его построчно
+        if (($handle = fopen($filePath, "r")) !== FALSE) {
+            fgetcsv($handle); // Пропускаем заголовок
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $tradeTime = SQLite3::escapeString($data[0]);
+                $tradePrice = (float)$data[1];
+                $tradeVolume = (int)$data[2];
+
+                // Вставляем данные в таблицу Trades
+                $query = "INSERT INTO Trades (TradeTime, TradePrice, TradeVolume) VALUES ('$tradeTime', '$tradePrice', '$tradeVolume')";
+                $db->exec($query);
+            }
+            fclose($handle);
+        }
+    }
+
     $url = "https://www.moex.com/ru/orders?historicaldata"; // URL для скачивания данных
     $zipFilePath = "data.zip"; // Путь к ZIP файлу
     $csvFilePath = "Trades.csv"; // Путь к CSV файлу
@@ -50,6 +71,10 @@
     // Скачиваем и распаковываем данные
     downloadFile($url, $zipFilePath);
     unzipFile($zipFilePath, __DIR__);
+
+    // Создаем и заполняем базу данных
+    $db = createDatabase();
+    insertData($db, $csvFilePath);
 
     // Перенаправляем обратно на index.php для отображения данных
     header("Location: index.php");
