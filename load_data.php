@@ -48,7 +48,7 @@ function createDatabase() {
         PRICE REAL,
         VOLUME INTEGER,
         TRADENO TEXT,
-        TRADEPRICE TEXT
+        TRADEPRICE REAL
     )");
     return $db;
 }
@@ -75,7 +75,7 @@ function insertData($db, $filePath) {
             $tradeprice = SQLite3::escapeString($data[9]);
 
             // Вставляем данные в таблицу Trades
-            $query = "INSERT INTO Trades (myNO, SECCODE, BUYSELL, myTIME, ORDERNO, myACTION, PRICE, VOLUME, TRADENO, TRADEPRICE) 
+            $query = "INSERT INTO Trades (myNo, SECCODE, BUYSELL, myTIME, ORDERNO, myACTION, PRICE, VOLUME, TRADENO, TRADEPRICE) 
                       VALUES ('$no', '$seccode', '$buysell', '$time', '$orderno', '$action', '$price', '$volume', '$tradeno', '$tradeprice')";
             $db->exec($query);
         }
