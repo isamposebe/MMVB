@@ -66,10 +66,30 @@
         </tr>
         <tbody>
             <?php
+            // Выполняем запрос для получения всех данных из таблицы Trades
+            $results = $db->query('SELECT * FROM Trades');
+
+            // Проверяем наличие результатов
+            if ($results) {
+                echo "<table>
+                        <tr>
+                            <th>NO</th>
+                            <th>SECCODE</th>
+                            <th>BUYSELL</th>
+                            <th>TIME</th>
+                            <th>ORDERNO</th>
+                            <th>ACTION</th>
+                            <th>PRICE</th>
+                            <th>VOLUME</th>
+                            <th>TRADENO</th>
+                            <th>TRADEPRICE</th>
+                        </tr>
+                        <tbody>";
+                
                 // Отображаем результаты в таблице
-                foreach ($rows as $row) {
+                while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
                     echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['myNo']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['myNO']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['SECCODE']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['BUYSELL']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['myTIME']) . "</td>";
@@ -81,6 +101,11 @@
                     echo "<td>" . htmlspecialchars($row['TRADEPRICE']) . "</td>";
                     echo "</tr>";
                 }
+                
+                echo "</tbody></table>";
+            } else {
+                echo "Пока не было запросов";
+            }
             ?>
         </tbody>
     </table>
