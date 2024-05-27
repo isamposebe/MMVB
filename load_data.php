@@ -35,53 +35,45 @@ function unzipFile($zipFile, $extractTo) {
     }
 }
 
-// Функция для создания базы данных и таблицы, если они не существуют
-function createDatabase() {
-    $db = new SQLite3('moex_data.db');
-    $db->exec("CREATE TABLE IF NOT EXISTS Trades (
-        myNO INTEGER,
-        SECCODE TEXT,
-        BUYSELL TEXT,
-        myTIME TEXT,
-        ORDERNO INTEGER,
-        myACTION INTEGER,
-        PRICE REAL,
-        VOLUME INTEGER,
-        TRADENO TEXT,
-        TRADEPRICE TEXT
-    )");
-    return $db;
-}
+// Функция для импорта CSV в SQLite
+function import_csv_to_sqlite(&$pdo, $csv_path, $options = array())
+{
+    extract($options);
+    
+    if (($csv_handle = fopen($csv_path, "r")) === FALSE)
+        throw new Exception('Cannot open CSV file');
+        
+    if(!$delimiter)
+        $delimiter = ';';
+        
+    if(!$table)
+        $table = preg_replace("/[^A-Z0-9]/i", '', basename($csv_path));
+    
+    if(!$fields){
+        $fields = array_map(function ($field){
+            return strtolower(preg_replace("/[^A-Z0-9]/i", '', $field));
+        }, fgetcsv($csv_handle, 0, $delimiter));
+    }
+    
+    $create_fields_str = join(', ', array_map(function ($field){
+        return "$field TEXT NULL";
+    }, $fields));
+    
+    $pdo->beginTransaction();
+    
+    $create_table_sql = "CREATE TABLE IF NOT EXISTS $table ($create_fields_str)";
+    $pdo->exec($create_table_sql);
 
-// Функция для вставки данных из CSV в базу данных
-function insertData($db, $filePath) {
-    // Очищаем таблицу перед вставкой новых данных
-    $db->exec("DELETE FROM Trades");
-
-    // Открываем CSV файл и читаем его построчно
-    if (($handle = fopen($filePath, "r")) !== FALSE) {
-        fgetcsv($handle); // Пропускаем заголовок
-        while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-            $no = SQLite3::escapeString($data[0]);
-            $seccode = SQLite3::escapeString($data[1]);
-            $buysell = SQLite3::escapeString($data[2]);
-            $time = SQLite3::escapeString($data[3]);
-            $orderno = SQLite3::escapeString($data[4]);
-            $action = SQLite3::escapeString($data[5]);
-            $price = SQLite3::escapeString($data[6]);
-            $volume = SQLite3::escapeString($data[7]);
-            $tradeno = SQLite3::escapeString($data[8]);
-            $tradeprice = SQLite3::escapeString($data[9]);
-
-            // Вставляем данные в таблицу Trades
-            $query = "INSERT INTO Trades (myNO, SECCODE, BUYSELL, myTIME, ORDERNO, myACTION, PRICE, VOLUME, TRADENO, TRADEPRICE) 
-                      VALUES ('$no', '$seccode', '$buysell', '$time', '$orderno', '$action', '$price', '$volume', '$tradeno', '$tradeprice')";
-            
-            if (!$db->exec($query)) {
-                echo "Ошибка вставки данных: " . $db->lastErrorMsg() . "<br>";
-            } else {
-                echo "Вставлены данные: $no, $seccode, $buysell, $time, $orderno, $action, $price, $volume, $tradeno, $tradeprice<br>";
-            }
+    $insert_fields_str = join(', ', $fields);
+    $insert_values_str = join(', ', array_fill(0, count($fields),  '?'));
+    $insert_sql = "INSERT INTO $table ($insert_fields_str) VALUES ($insert_values_str)";
+    $insert_sth = $pdo->prepare($insert_sql);
+    
+    $inserted_rows = 0;
+    while (($data = fgetcsv($csv_handle, 0, $delimiter)) !== FALSE) {
+        $insert_sth->execute($data);
+        $inserted_rows++;
+    }
         }
         fclose($handle);
     } else {
