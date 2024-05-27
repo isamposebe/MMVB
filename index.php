@@ -22,7 +22,14 @@
                 $db = new SQLite3('moex_data.db');
                 // Выполняем запрос для получения всех данных из таблицы Trades
                 $results = $db->query('SELECT * FROM Trades');
-                
+                // Отображаем результаты в таблице
+                while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($row['TradeTime']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['TradePrice']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['TradeVolume']) . "</td>";
+                    echo "</tr>";
+                }
             ?>
         </tbody>
     </table>
