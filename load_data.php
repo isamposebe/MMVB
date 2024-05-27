@@ -87,6 +87,7 @@ function insertData($db, $filePath) {
             }
         }
         
+        
         // Завершаем транзакцию
         $db->exec('COMMIT TRANSACTION');
         fclose($handle);
