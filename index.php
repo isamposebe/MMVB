@@ -17,16 +17,24 @@
         </style>
 </head>
 <body>
-    <h1>Валютный рынок (csv.zip, 3,3 Мб)</h1>
-    <form action="load_data.php" method="post">
-        <button type="submit">Загрузить данные</button>
-    </form>
-    <table border="1">
-        <thead>
+
+        <h1>Trades from MOEX</h1>
+
+        <?php
+        try {
+            $db = new SQLite3('moex_data.db');
+        } catch (Exception $e) {
+            die($e->getMessage());
+        }
+
+        $result = $db->query('SELECT * FROM Trades');
+        ?>
+
+        <table>
             <tr>
-                <th>Время сделки</th>
-                <th>Цена сделки</th>
-                <th>Объем сделки</th>
+                <th>Trade Time</th>
+                <th>Trade Price</th>
+                <th>Trade Volume</th>
             </tr>
         </thead>
         <tbody>
