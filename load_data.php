@@ -53,14 +53,23 @@ function insertData($db, $filePath) {
 
     // Открываем CSV файл и читаем его построчно
     if (($handle = fopen($filePath, "r")) !== FALSE) {
-        fgetcsv($handle); // Пропускаем заголовок
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            $tradeTime = SQLite3::escapeString($data[0]);
-            $tradePrice = (float)$data[1];
-            $tradeVolume = (int)$data[2];
+        // Пропускаем заголовок
+        fgetcsv($handle);
+        while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+            $no = SQLite3::escapeString($data[0]);
+            $seccode = SQLite3::escapeString($data[1]);
+            $buysell = SQLite3::escapeString($data[2]);
+            $time = SQLite3::escapeString($data[3]);
+            $orderno = SQLite3::escapeString($data[4]);
+            $action = SQLite3::escapeString($data[5]);
+            $price = SQLite3::escapeString($data[6]);
+            $volume = SQLite3::escapeString($data[7]);
+            $tradeno = SQLite3::escapeString($data[8]);
+            $tradeprice = SQLite3::escapeString($data[9]);
 
             // Вставляем данные в таблицу Trades
-            $query = "INSERT INTO Trades (TradeTime, TradePrice, TradeVolume) VALUES ('$tradeTime', '$tradePrice', '$tradeVolume')";
+            $query = "INSERT INTO Trades (NO, SECCODE, BUYSELL, TIME, ORDERNO, ACTION, PRICE, VOLUME, TRADENO, TRADEPRICE) 
+                      VALUES ('$no', '$seccode', '$buysell', '$time', '$orderno', '$action', '$price', '$volume', '$tradeno', '$tradeprice')";
             $db->exec($query);
         }
         fclose($handle);
