@@ -31,10 +31,26 @@
         return $db;
     }
 
+    // Функция для распаковки ZIP архива
+    function unzipFile($zipFile, $extractTo) {
+        $zip = new ZipArchive;
+        if ($zip->open($zipFile) === TRUE) {
+            $zip->extractTo($extractTo);
+            $zip->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     $url = "https://www.moex.com/ru/orders?historicaldata"; // URL для скачивания данных
     $zipFilePath = "data.zip"; // Путь к ZIP файлу
     $csvFilePath = "Trades.csv"; // Путь к CSV файлу
-    
+
+    // Скачиваем и распаковываем данные
+    downloadFile($url, $zipFilePath);
+    unzipFile($zipFilePath, __DIR__);
+
     // Перенаправляем обратно на index.php для отображения данных
     header("Location: index.php");
 ?>
