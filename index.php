@@ -1,7 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Moex Data Loader</title>
+        <title>MOEX Trades</title>
+        <style>
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            table, th, td {
+                border: 1px solid black;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+            }
+        </style>
 </head>
 <body>
     <h1>Валютный рынок (csv.zip, 3,3 Мб)</h1>
