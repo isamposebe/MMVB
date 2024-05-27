@@ -18,4 +18,17 @@
             fclose($newf);
         }
     }
+
+
+    // Функция для создания базы данных и таблицы, если они не существуют
+    function createDatabase() {
+        $db = new SQLite3('moex_data.db');
+        $db->exec("CREATE TABLE IF NOT EXISTS Trades (
+            TradeTime TEXT,
+            TradePrice REAL,
+            TradeVolume INTEGER
+        )");
+        return $db;
+    }
+
 ?>
