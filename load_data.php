@@ -31,4 +31,10 @@
         return $db;
     }
 
+    $url = "https://www.moex.com/ru/orders?historicaldata"; // URL для скачивания данных
+    $zipFilePath = "data.zip"; // Путь к ZIP файлу
+    $csvFilePath = "Trades.csv"; // Путь к CSV файлу
+    
+    // Перенаправляем обратно на index.php для отображения данных
+    header("Location: index.php");
 ?>
