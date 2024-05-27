@@ -20,6 +20,8 @@
             <?php
                 // Подключаемся к базе данных SQLite
                 $db = new SQLite3('moex_data.db');
+                // Выполняем запрос для получения всех данных из таблицы Trades
+                $results = $db->query('SELECT * FROM Trades');
                 
             ?>
         </tbody>
