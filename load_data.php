@@ -98,6 +98,7 @@ function insertData($db, $filePath) {
 $url = "https://fs.moex.com/files/18307"; // URL для скачивания данных
 $zipFilePath = "data.zip"; // Путь к ZIP файлу
 $csvFilePath = "OrderLog20181229.csv"; // Путь к CSV файлу
+
 // Скачиваем и распаковываем данные
 downloadFile($url, $zipFilePath);
 if (unzipFile($zipFilePath, __DIR__)) {
