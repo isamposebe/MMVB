@@ -23,7 +23,7 @@
     <form action="load_data.php" method="post">
         <button type="submit">Загрузить данные</button>
     </form>
-    
+
     <?php
     // Подключаемся к базе данных SQLite
     try {
@@ -41,18 +41,32 @@
 
     <table>
         <tr>
-            <th>Trade Time</th>
-            <th>Trade Price</th>
-            <th>Trade Volume</th>
+            <th>NO</th>
+            <th>SECCODE</th>
+            <th>BUYSELL</th>
+            <th>TIME</th>
+            <th>ORDERNO</th>
+            <th>ACTION</th>
+            <th>PRICE</th>
+            <th>VOLUME</th>
+            <th>TRADENO</th>
+            <th>TRADEPRICE</th>
         </tr>
         <tbody>
             <?php
             // Отображаем результаты в таблице
             while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
                 echo "<tr>";
-                echo "<td>" . htmlspecialchars($row['TradeTime']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['TradePrice']) . "</td>";
-                echo "<td>" . htmlspecialchars($row['TradeVolume']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['myNo']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['SECCODE']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['BUYSELL']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['myTIME']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['ORDERNO']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['myACTION']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['PRICE']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['VOLUME']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['TRADENO']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['TRADEPRICE']) . "</td>";
                 echo "</tr>";
             }
             ?>
