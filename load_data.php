@@ -39,9 +39,16 @@ function unzipFile($zipFile, $extractTo) {
 function createDatabase() {
     $db = new SQLite3('moex_data.db');
     $db->exec("CREATE TABLE IF NOT EXISTS Trades (
-        TradeTime TEXT,
-        TradePrice REAL,
-        TradeVolume INTEGER
+        myNo INTEGER,
+        SECCODE TEXT,
+        BUYSELL TEXT,
+        myTIME TEXT,
+        ORDERNO INTEGER,
+        myACTION INTEGER,
+        PRICE REAL,
+        VOLUME INTEGER,
+        TRADENO TEXT,
+        TRADEPRICE TEXT
     )");
     return $db;
 }
@@ -68,7 +75,7 @@ function insertData($db, $filePath) {
             $tradeprice = SQLite3::escapeString($data[9]);
 
             // Вставляем данные в таблицу Trades
-            $query = "INSERT INTO Trades (NO, SECCODE, BUYSELL, TIME, ORDERNO, ACTION, PRICE, VOLUME, TRADENO, TRADEPRICE) 
+            $query = "INSERT INTO Trades (myNO, SECCODE, BUYSELL, myTIME, ORDERNO, myACTION, PRICE, VOLUME, TRADENO, TRADEPRICE) 
                       VALUES ('$no', '$seccode', '$buysell', '$time', '$orderno', '$action', '$price', '$volume', '$tradeno', '$tradeprice')";
             $db->exec($query);
         }
