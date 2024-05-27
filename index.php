@@ -20,6 +20,10 @@
 
     <h1>Валютный рынок (csv.zip, 3,3 Мб)</h1>
 
+    <form action="load_data.php" method="post">
+        <button type="submit">Загрузить данные</button>
+    </form>
+    
     <?php
     // Подключаемся к базе данных SQLite
     try {
