@@ -1,4 +1,7 @@
 <?php
+    // Устанавливаем максимальное время выполнения скрипта в бесконечность
+    set_time_limit(0);
+    
     // Функция для скачивания файла по URL
     function downloadFile($url, $path) {
         $newfname = $path;
