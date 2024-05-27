@@ -68,19 +68,23 @@ function insertData($db, $filePath) {
         
         fgetcsv($handle); // Пропускаем заголовок
         while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-            // Устанавливаем параметры и выполняем запрос
-            $stmt->bindValue(1, $data[0]);
-            $stmt->bindValue(2, $data[1]);
-            $stmt->bindValue(3, $data[2]);
-            $stmt->bindValue(4, $data[3]);
-            $stmt->bindValue(5, $data[4]);
-            $stmt->bindValue(6, $data[5]);
-            $stmt->bindValue(7, $data[6]);
-            $stmt->bindValue(8, $data[7]);
-            $stmt->bindValue(9, $data[8]);
-            $stmt->bindValue(10, $data[9]);
-            
-            if (!$stmt->execute()) {
+            // Проверяем, есть ли значение для каждого столбца
+            $no = isset($data[0]) ? SQLite3::escapeString($data[0]) : '';
+            $seccode = isset($data[1]) ? SQLite3::escapeString($data[1]) : '';
+            $buysell = isset($data[2]) ? SQLite3::escapeString($data[2]) : '';
+            $time = isset($data[3]) ? SQLite3::escapeString($data[3]) : '';
+            $orderno = isset($data[4]) ? SQLite3::escapeString($data[4]) : '';
+            $action = isset($data[5]) ? SQLite3::escapeString($data[5]) : '';
+            $price = isset($data[6]) ? SQLite3::escapeString($data[6]) : '';
+            $volume = isset($data[7]) ? SQLite3::escapeString($data[7]) : '';
+            $tradeno = isset($data[8]) ? SQLite3::escapeString($data[8]) : '';
+            $tradeprice = isset($data[9]) ? SQLite3::escapeString($data[9]) : '';
+        
+            // Вставляем данные в таблицу Trades
+            $query = "INSERT INTO Trades (_NO, _SECCODE, _BUYSELL, _TIME, _ORDERNO, _ACTION, _PRICE, _VOLUME, _TRADENO, _TRADEPRICE) 
+                      VALUES ('$no', '$seccode', '$buysell', '$time', '$orderno', '$action', '$price', '$volume', '$tradeno', '$tradeprice')";
+        
+            if (!$db->exec($query)) {
                 echo "Ошибка вставки данных: " . $db->lastErrorMsg() . "<br>";
                 $db->exec('ROLLBACK TRANSACTION');
                 return;
