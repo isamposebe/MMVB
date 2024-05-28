@@ -62,89 +62,48 @@ function insertData($db, $filePath) {
     if (($handle = fopen($filePath, "r")) !== FALSE) {
         // Начинаем транзакцию
         $db->exec('BEGIN TRANSACTION');
-        
+
+        // Подготавливаем SQL-запрос для вставки данных
         $stmt = $db->prepare("INSERT INTO Trades (_NO, _SECCODE, _BUYSELL, _TIME, _ORDERNO, _ACTION, _PRICE, _VOLUME, _TRADENO, _TRADEPRICE) 
                               VALUES (:_no, :_seccode, :_buysell, :_time, :_orderno, :_action, :_price, :_volume, :_tradeno, :_tradeprice)");
-        
-        fgetcsv($handle); // Пропускаем заголовок
-        while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-            // Проверяем, есть ли значение для каждого столбца
-            $no = isset($data[0]) ? SQLite3::escapeString($data[0]) : '';
-            $seccode = isset($data[1]) ? SQLite3::escapeString($data[1]) : '';
-            $buysell = isset($data[2]) ? SQLite3::escapeString($data[2]) : '';            
-            $timestampString = isset($data[3]) ? SQLite3::escapeString($data[3]) : '';
 
+        // Пропускаем заголовок
+        fgetcsv($handle);
+
+        while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
             // Преобразование временной метки
-            $timestamp = intval(rtrim($timestampString, ';'));
+            $timestampString = isset($data[3]) ? rtrim($data[3], ';') : '0';
+            $timestamp = intval($timestampString);
             $time = $timestamp > 0 && $timestamp < PHP_INT_MAX ? date('Y-m-d H:i:s', $timestamp) : date('Y-m-d H:i:s');
 
-            $orderno = isset($data[4]) ? SQLite3::escapeString($data[4]) : '';
-            $action = isset($data[5]) ? SQLite3::escapeString($data[5]) : '';
-            $price = isset($data[6]) ? SQLite3::escapeString($data[6]) : '';
-            $volume = isset($data[7]) ? SQLite3::escapeString($data[7]) : '';
-            $tradeno = isset($data[8]) ? SQLite3::escapeString($data[8]) : '';
-            $tradeprice = isset($data[9]) ? SQLite3::escapeString($data[9]) : '';
-        
-            // Вставляем данные в таблицу Trades
-            $query = "INSERT INTO Trades (_NO, _SECCODE, _BUYSELL, _TIME, _ORDERNO, _ACTION, _PRICE, _VOLUME, _TRADENO, _TRADEPRICE) 
-                      VALUES ('$no', '$seccode', '$buysell', '$time', '$orderno', '$action', '$price', '$volume', '$tradeno', '$tradeprice')";
-        
-            if (!$db->exec($query)) {
+            // Привязка значений к параметрам запроса
+            $stmt->bindValue(':_no', $data[0], SQLITE3_INTEGER);
+            $stmt->bindValue(':_seccode', $data[1], SQLITE3_TEXT);
+            $stmt->bindValue(':_buysell', $data[2], SQLITE3_TEXT);
+            $stmt->bindValue(':_time', $time, SQLITE3_TEXT);
+            $stmt->bindValue(':_orderno', $data[4], SQLITE3_INTEGER);
+            $stmt->bindValue(':_action', $data[5], SQLITE3_INTEGER);
+            $stmt->bindValue(':_price', $data[6], SQLITE3_FLOAT);
+            $stmt->bindValue(':_volume', $data[7], SQLITE3_INTEGER);
+            $stmt->bindValue(':_tradeno', $data[8], SQLITE3_TEXT);
+            $stmt->bindValue(':_tradeprice', $data[9], SQLITE3_TEXT);
+
+            // Выполнение запроса
+            if (!$stmt->execute()) {
                 echo "Ошибка вставки данных: " . $db->lastErrorMsg() . "<br>";
                 $db->exec('ROLLBACK TRANSACTION');
                 return;
             }
         }
-        // Привязка значений к параметрам запроса
-        $stmt->bindValue(':no', $no, SQLITE3_INTEGER);
-        $stmt->bindValue(':seccode', $seccode, SQLITE3_TEXT);
-        $stmt->bindValue(':buysell', $buysell, SQLITE3_TEXT);
-        $stmt->bindValue(':time', $time, SQLITE3_TEXT);
-        $stmt->bindValue(':orderno', $orderno, SQLITE3_INTEGER);
-        $stmt->bindValue(':action', $action, SQLITE3_INTEGER);
-        $stmt->bindValue(':price', $price, SQLITE3_FLOAT);
-        $stmt->bindValue(':volume', $volume, SQLITE3_INTEGER);
-        $stmt->bindValue(':tradeno', $tradeno, SQLITE3_TEXT);
-        $stmt->bindValue(':tradeprice', $tradeprice, SQLITE3_TEXT);
-        
+
         // Завершаем транзакцию
         $db->exec('COMMIT TRANSACTION');
         fclose($handle);
     } else {
         echo "Не удалось открыть CSV файл: $filePath";
     }
-    
-    $create_fields_str = join(', ', array_map(function ($field){
-        return "$field TEXT NULL";
-    }, $fields));
-    
-    $pdo->beginTransaction();
-    
-    $create_table_sql = "CREATE TABLE IF NOT EXISTS $table ($create_fields_str)";
-    $pdo->exec($create_table_sql);
-
-    $insert_fields_str = join(', ', $fields);
-    $insert_values_str = join(', ', array_fill(0, count($fields),  '?'));
-    $insert_sql = "INSERT INTO $table ($insert_fields_str) VALUES ($insert_values_str)";
-    $insert_sth = $pdo->prepare($insert_sql);
-    
-    $inserted_rows = 0;
-    while (($data = fgetcsv($csv_handle, 0, $delimiter)) !== FALSE) {
-        $insert_sth->execute($data);
-        $inserted_rows++;
-    }
-    
-    $pdo->commit();
-    
-    fclose($csv_handle);
-    
-    return array(
-            'table' => $table,
-            'fields' => $fields,
-            'insert' => $insert_sth,
-            'inserted_rows' => $inserted_rows
-        );
 }
+
 
 // Поиск CSV файлов
 function findCsvFiles($directory) {
@@ -177,13 +136,9 @@ $csvFilePath = "OrderLog20181229.csv"; // Путь к CSV файлу
 downloadFile($url, $zipFilePath);
 if (unzipFile($zipFilePath, __DIR__)) {
     try {
-        // Создаем и заполняем базу данных
-        $pdo = new PDO('sqlite:moex_data.db');
-        $result = import_csv_to_sqlite($pdo, $csvFilePath, array(
-            'delimiter' => ';', // Задайте нужный разделитель
-            'table' => 'Trades' // Имя таблицы
-        ));
-        echo "Inserted rows: " . $result['inserted_rows'];
+           // Создаем и заполняем базу данных
+        $db = createDatabase();
+        insertData($db, $csvFilePath);
     } catch (Exception $e) {
         die("Error: " . $e->getMessage());
     }
