@@ -53,56 +53,79 @@ function createDatabase() {
     return $db;
 }
 
-// Функция для вставки данных из CSV в базу данных
+// Функция для открытия CSV файла и возвращения его дескриптора
+function openCsvFile($filePath) {
+    if (($handle = fopen($filePath, "r")) === FALSE) {
+        throw new Exception("Не удалось открыть CSV файл: $filePath");
+    }
+    // Пропускаем заголовок
+    fgetcsv($handle);
+    return $handle;
+}
+
+// Функция для обработки строки CSV
+function processCsvRow($data) {
+    $timestampString = isset($data[3]) ? rtrim($data[3], ';') : '0';
+    $timestamp = intval($timestampString);
+    $time = $timestamp > 0 && $timestamp < PHP_INT_MAX ? date('Y-m-d H:i:s', $timestamp) : date('Y-m-d H:i:s');
+    
+    return [
+        'no' => $data[0],
+        'seccode' => $data[1],
+        'buysell' => $data[2],
+        'time' => $time,
+        'orderno' => $data[4],
+        'action' => $data[5],
+        'price' => $data[6],
+        'volume' => $data[7],
+        'tradeno' => $data[8],
+        'tradeprice' => $data[9]
+    ];
+}
+
+// Функция для вставки данных в базу данных
+function insertDataIntoDatabase($db, $rowData) {
+    $stmt = $db->prepare("INSERT INTO Trades (_NO, _SECCODE, _BUYSELL, _TIME, _ORDERNO, _ACTION, _PRICE, _VOLUME, _TRADENO, _TRADEPRICE) 
+                          VALUES (:_no, :_seccode, :_buysell, :_time, :_orderno, :_action, :_price, :_volume, :_tradeno, :_tradeprice)");
+    
+    $stmt->bindValue(':_no', $rowData['no'], SQLITE3_INTEGER);
+    $stmt->bindValue(':_seccode', $rowData['seccode'], SQLITE3_TEXT);
+    $stmt->bindValue(':_buysell', $rowData['buysell'], SQLITE3_TEXT);
+    $stmt->bindValue(':_time', $rowData['time'], SQLITE3_TEXT);
+    $stmt->bindValue(':_orderno', $rowData['orderno'], SQLITE3_INTEGER);
+    $stmt->bindValue(':_action', $rowData['action'], SQLITE3_INTEGER);
+    $stmt->bindValue(':_price', $rowData['price'], SQLITE3_FLOAT);
+    $stmt->bindValue(':_volume', $rowData['volume'], SQLITE3_INTEGER);
+    $stmt->bindValue(':_tradeno', $rowData['tradeno'], SQLITE3_TEXT);
+    $stmt->bindValue(':_tradeprice', $rowData['tradeprice'], SQLITE3_TEXT);
+
+    if (!$stmt->execute()) {
+        throw new Exception("Ошибка вставки данных: " . $db->lastErrorMsg());
+    }
+}
+
+// Основная функция для вставки данных из CSV в базу данных
 function insertData($db, $filePath) {
     // Очищаем таблицу перед вставкой новых данных
     $db->exec("DELETE FROM Trades");
 
-    // Открываем CSV файл и читаем его построчно
-    if (($handle = fopen($filePath, "r")) !== FALSE) {
-        // Начинаем транзакцию
+    try {
+        $handle = openCsvFile($filePath);
         $db->exec('BEGIN TRANSACTION');
 
-        // Подготавливаем SQL-запрос для вставки данных
-        $stmt = $db->prepare("INSERT INTO Trades (_NO, _SECCODE, _BUYSELL, _TIME, _ORDERNO, _ACTION, _PRICE, _VOLUME, _TRADENO, _TRADEPRICE) 
-                              VALUES (:_no, :_seccode, :_buysell, :_time, :_orderno, :_action, :_price, :_volume, :_tradeno, :_tradeprice)");
-
-        // Пропускаем заголовок
-        fgetcsv($handle);
-
         while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-            // Преобразование временной метки
-            $timestampString = isset($data[3]) ? rtrim($data[3], ';') : '0';
-            $timestamp = intval($timestampString);
-            $time = $timestamp > 0 && $timestamp < PHP_INT_MAX ? date('Y-m-d H:i:s', $timestamp) : date('Y-m-d H:i:s');
-
-            // Привязка значений к параметрам запроса
-            $stmt->bindValue(':_no', $data[0], SQLITE3_INTEGER);
-            $stmt->bindValue(':_seccode', $data[1], SQLITE3_TEXT);
-            $stmt->bindValue(':_buysell', $data[2], SQLITE3_TEXT);
-            $stmt->bindValue(':_time', $time, SQLITE3_TEXT);
-            $stmt->bindValue(':_orderno', $data[4], SQLITE3_INTEGER);
-            $stmt->bindValue(':_action', $data[5], SQLITE3_INTEGER);
-            $stmt->bindValue(':_price', $data[6], SQLITE3_FLOAT);
-            $stmt->bindValue(':_volume', $data[7], SQLITE3_INTEGER);
-            $stmt->bindValue(':_tradeno', $data[8], SQLITE3_TEXT);
-            $stmt->bindValue(':_tradeprice', $data[9], SQLITE3_TEXT);
-
-            // Выполнение запроса
-            if (!$stmt->execute()) {
-                echo "Ошибка вставки данных: " . $db->lastErrorMsg() . "<br>";
-                $db->exec('ROLLBACK TRANSACTION');
-                return;
-            }
+            $rowData = processCsvRow($data);
+            insertDataIntoDatabase($db, $rowData);
         }
 
-        // Завершаем транзакцию
         $db->exec('COMMIT TRANSACTION');
         fclose($handle);
-    } else {
-        echo "Не удалось открыть CSV файл: $filePath";
+    } catch (Exception $e) {
+        $db->exec('ROLLBACK TRANSACTION');
+        echo $e->getMessage();
     }
 }
+
 
 
 // Поиск CSV файлов
