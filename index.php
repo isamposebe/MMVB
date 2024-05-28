@@ -31,7 +31,6 @@
     } catch (Exception $e) {
         die("Error connecting to database: " . $e->getMessage());
     }
-
     // Выполняем запрос для получения всех данных из таблицы Trades
     $results = $db->query('SELECT * FROM Trades');
     if (!$results) {
@@ -66,21 +65,32 @@
         </tr>
         <tbody>
             <?php
+            // Выполняем запрос для получения всех данных из таблицы Trades
+            $results = $db->query('SELECT * FROM Trades');
+
+            // Проверяем наличие результатов
+            if ($results) {
+                               
                 // Отображаем результаты в таблице
-                foreach ($rows as $row) {
+                while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
                     echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['myNo']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['SECCODE']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['BUYSELL']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['myTIME']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['ORDERNO']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['myACTION']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['PRICE']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['VOLUME']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['TRADENO']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['TRADEPRICE']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_NO']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_SECCODE']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_BUYSELL']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_TIME']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_ORDERNO']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_ACTION']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_PRICE']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_VOLUME']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_TRADENO']) . "</td>";
+                    echo "<td>" . htmlspecialchars($row['_TRADEPRICE']) . "</td>";
                     echo "</tr>";
                 }
+                
+                echo "</tbody></table>";
+            } else {
+                echo "Пока не было запросов";
+            }
             ?>
         </tbody>
     </table>
