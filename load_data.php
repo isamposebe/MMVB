@@ -71,12 +71,12 @@ function insertData($db, $filePath) {
             // Проверяем, есть ли значение для каждого столбца
             $no = isset($data[0]) ? SQLite3::escapeString($data[0]) : '';
             $seccode = isset($data[1]) ? SQLite3::escapeString($data[1]) : '';
-            $buysell = isset($data[2]) ? SQLite3::escapeString($data[2]) : '';
-            
-            // Преобразование временной метки
+            $buysell = isset($data[2]) ? SQLite3::escapeString($data[2]) : '';            
             $timestampString = isset($data[3]) ? SQLite3::escapeString($data[3]) : '';
+
+            // Преобразование временной метки
             $timestamp = intval(rtrim($timestampString, ';'));
-            $time = $timestamp > 0 ? date('Y-m-d H:i:s', $timestamp) : date('Y-m-d H:i:s');
+            $time = $timestamp > 0 && $timestamp < PHP_INT_MAX ? date('Y-m-d H:i:s', $timestamp) : date('Y-m-d H:i:s');
 
             $orderno = isset($data[4]) ? SQLite3::escapeString($data[4]) : '';
             $action = isset($data[5]) ? SQLite3::escapeString($data[5]) : '';
