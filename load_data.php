@@ -126,8 +126,6 @@ function insertData($db, $filePath) {
     }
 }
 
-
-
 // Поиск CSV файлов
 function findCsvFiles($directory) {
     $csvFiles = []; // Массив для хранения найденных файлов
