@@ -43,7 +43,7 @@
         die("Error connecting to database: " . $e->getMessage());
     }
     // Выполняем запрос для получения всех данных из таблицы Trades
-    $results = $db->query('SELECT * FROM Trades');
+    $results = $db->query('SELECT * FROM Trades LIMIT 100');
     if (!$results) {
         die("Error executing query: " . $db->lastErrorMsg());
     } else {
@@ -61,29 +61,24 @@
     }
     ?>
 
-    <table>
+    <table id="dataTable">
+        <thead>
         <tr>
-            <th>NO</th>
-            <th>SECCODE</th>
-            <th>BUYSELL</th>
-            <th>TIME</th>
-            <th>ORDERNO</th>
-            <th>ACTION</th>
-            <th>PRICE</th>
-            <th>VOLUME</th>
-            <th>TRADENO</th>
-            <th>TRADEPRICE</th>
+                <th onclick="sortTable(0)">NO</th>
+                <th onclick="sortTable(1)">SECCODE</th>
+                <th onclick="sortTable(2)">BUYSELL</th>
+                <th onclick="sortTable(3)">TIME</th>
+                <th onclick="sortTable(4)">ORDERNO</th>
+                <th onclick="sortTable(5)">ACTION</th>
+                <th onclick="sortTable(6)">PRICE</th>
+                <th onclick="sortTable(7)">VOLUME</th>
+                <th onclick="sortTable(8)">TRADENO</th>
+                <th onclick="sortTable(9)">TRADEPRICE</th>
         </tr>
+        </thead>
         <tbody>
             <?php
-            // Выполняем запрос для получения всех данных из таблицы Trades
-            $results = $db->query('SELECT * FROM Trades');
-
-            // Проверяем наличие результатов
-            if ($results) {
-                               
-                // Отображаем результаты в таблице
-                while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+            foreach ($rows as $row) {
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($row['_NO']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['_SECCODE']) . "</td>";
