@@ -31,7 +31,6 @@
     } catch (Exception $e) {
         die("Error connecting to database: " . $e->getMessage());
     }
-
     // Выполняем запрос для получения всех данных из таблицы Trades
     $results = $db->query('SELECT * FROM Trades');
     if (!$results) {
