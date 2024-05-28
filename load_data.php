@@ -39,16 +39,16 @@ function unzipFile($zipFile, $extractTo) {
 function createDatabase() {
     $db = new SQLite3('moex_data.db');
     $db->exec("CREATE TABLE IF NOT EXISTS Trades (
-        _NO INTEGER,
-        _SECCODE TEXT,
-        _BUYSELL TEXT,
-        _TIME TEXT,
-        _ORDERNO INTEGER,
-        _ACTION INTEGER,
-        _PRICE REAL,
-        _VOLUME INTEGER,
-        _TRADENO TEXT,
-        _TRADEPRICE TEXT
+        'NO' INTEGER,
+        'SECCODE' TEXT,
+        'BUYSELL' TEXT,
+        'TIME' TEXT,
+        'ORDERNO' INTEGER,
+        'ACTION' INTEGER,
+        'PRICE' REAL,
+        'VOLUME' INTEGER,
+        'TRADENO' TEXT,
+        'TRADEPRICE' TEXT
     )");
     return $db;
 }
@@ -66,9 +66,9 @@ function openCsvFile($filePath) {
 // Функция для обработки строки CSV
 function processCsvRow($data) {
     $timestampString = isset($data[3]) ? rtrim($data[3], ';') : '0';
-    $timestamp = intval($timestampString);
+    $timestamp = intval($timestampString > 0 ? date('Y-m-d H:i:s', $timestampString) : date('Y-m-d H:i:s'));
     $time = $timestamp > 0 && $timestamp < PHP_INT_MAX ? date('Y-m-d H:i:s', $timestamp) : date('Y-m-d H:i:s');
-    
+
     return [
         'no' => $data[0],
         'seccode' => $data[1],
@@ -85,19 +85,19 @@ function processCsvRow($data) {
 
 // Функция для вставки данных в базу данных
 function insertDataIntoDatabase($db, $rowData) {
-    $stmt = $db->prepare("INSERT INTO Trades (_NO, _SECCODE, _BUYSELL, _TIME, _ORDERNO, _ACTION, _PRICE, _VOLUME, _TRADENO, _TRADEPRICE) 
-                          VALUES (:_no, :_seccode, :_buysell, :_time, :_orderno, :_action, :_price, :_volume, :_tradeno, :_tradeprice)");
+    $stmt = $db->prepare("INSERT INTO Trades ('NO', 'SECCODE', 'BUYSELL', 'TIME', 'ORDERNO', 'ACTION', 'PRICE', 'VOLUME', 'TRADENO', 'TRADEPRICE') 
+                          VALUES (:no, :seccode, :buysell, :time, :orderno, :action, :price, :volume, :tradeno, :tradeprice)");
     
-    $stmt->bindValue(':_no', $rowData['no'], SQLITE3_INTEGER);
-    $stmt->bindValue(':_seccode', $rowData['seccode'], SQLITE3_TEXT);
-    $stmt->bindValue(':_buysell', $rowData['buysell'], SQLITE3_TEXT);
-    $stmt->bindValue(':_time', $rowData['time'], SQLITE3_TEXT);
-    $stmt->bindValue(':_orderno', $rowData['orderno'], SQLITE3_INTEGER);
-    $stmt->bindValue(':_action', $rowData['action'], SQLITE3_INTEGER);
-    $stmt->bindValue(':_price', $rowData['price'], SQLITE3_FLOAT);
-    $stmt->bindValue(':_volume', $rowData['volume'], SQLITE3_INTEGER);
-    $stmt->bindValue(':_tradeno', $rowData['tradeno'], SQLITE3_TEXT);
-    $stmt->bindValue(':_tradeprice', $rowData['tradeprice'], SQLITE3_TEXT);
+    $stmt->bindValue(':no', $rowData['no'], SQLITE3_INTEGER);
+    $stmt->bindValue(':seccode', $rowData['seccode'], SQLITE3_TEXT);
+    $stmt->bindValue(':buysell', $rowData['buysell'], SQLITE3_TEXT);
+    $stmt->bindValue(':time', $rowData['time'], SQLITE3_TEXT);
+    $stmt->bindValue(':orderno', $rowData['orderno'], SQLITE3_INTEGER);
+    $stmt->bindValue(':action', $rowData['action'], SQLITE3_INTEGER);
+    $stmt->bindValue(':price', $rowData['price'], SQLITE3_FLOAT);
+    $stmt->bindValue(':volume', $rowData['volume'], SQLITE3_INTEGER);
+    $stmt->bindValue(':tradeno', $rowData['tradeno'], SQLITE3_TEXT);
+    $stmt->bindValue(':tradeprice', $rowData['tradeprice'], SQLITE3_TEXT);
 
     if (!$stmt->execute()) {
         throw new Exception("Ошибка вставки данных: " . $db->lastErrorMsg());
@@ -108,7 +108,6 @@ function insertDataIntoDatabase($db, $rowData) {
 function insertData($db, $filePath) {
     // Очищаем таблицу перед вставкой новых данных
     $db->exec("DELETE FROM Trades");
-
     try {
         $handle = openCsvFile($filePath);
         $db->exec('BEGIN TRANSACTION');
@@ -148,10 +147,11 @@ function findCsvFiles($directory) {
 
     return $csvFiles;
 }
+
 //$directory = ''; // Укажите путь к каталогу, в котором нужно искать файлы
 $url = "https://fs.moex.com/files/18307"; // URL для скачивания данных
 $zipFilePath = "data.zip"; // Путь к ZIP файлу
-$csvFilePath = "OrderLog20181229.csv"; // Путь к CSV файлу
+$csvFilePath = "Order.csv"; // Путь к CSV файлу
 
 // Скачиваем и распаковываем данные
 downloadFile($url, $zipFilePath);
