@@ -176,17 +176,9 @@ $csvFilePath = "OrderLog20181229.csv"; // Путь к CSV файлу
 // Скачиваем и распаковываем данные
 downloadFile($url, $zipFilePath);
 if (unzipFile($zipFilePath, __DIR__)) {
-    try {
-        // Создаем и заполняем базу данных
-        $pdo = new PDO('sqlite:moex_data.db');
-        $result = import_csv_to_sqlite($pdo, $csvFilePath, array(
-            'delimiter' => ';', // Задайте нужный разделитель
-            'table' => 'Trades' // Имя таблицы
-        ));
-        echo "Inserted rows: " . $result['inserted_rows'];
-    } catch (Exception $e) {
-        die("Error: " . $e->getMessage());
-    }
+    // Создаем и заполняем базу данных
+    $db = createDatabase();
+    insertData($db, $csvFilePath);
 }
 
 // Перенаправляем обратно на index.php для отображения данных
