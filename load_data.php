@@ -113,6 +113,37 @@ function insertData($db, $filePath) {
     } else {
         echo "Не удалось открыть CSV файл: $filePath";
     }
+    
+    $create_fields_str = join(', ', array_map(function ($field){
+        return "$field TEXT NULL";
+    }, $fields));
+    
+    $pdo->beginTransaction();
+    
+    $create_table_sql = "CREATE TABLE IF NOT EXISTS $table ($create_fields_str)";
+    $pdo->exec($create_table_sql);
+
+    $insert_fields_str = join(', ', $fields);
+    $insert_values_str = join(', ', array_fill(0, count($fields),  '?'));
+    $insert_sql = "INSERT INTO $table ($insert_fields_str) VALUES ($insert_values_str)";
+    $insert_sth = $pdo->prepare($insert_sql);
+    
+    $inserted_rows = 0;
+    while (($data = fgetcsv($csv_handle, 0, $delimiter)) !== FALSE) {
+        $insert_sth->execute($data);
+        $inserted_rows++;
+    }
+    
+    $pdo->commit();
+    
+    fclose($csv_handle);
+    
+    return array(
+            'table' => $table,
+            'fields' => $fields,
+            'insert' => $insert_sth,
+            'inserted_rows' => $inserted_rows
+        );
 }
 
 // Поиск CSV файлов
@@ -145,9 +176,17 @@ $csvFilePath = "OrderLog20181229.csv"; // Путь к CSV файлу
 // Скачиваем и распаковываем данные
 downloadFile($url, $zipFilePath);
 if (unzipFile($zipFilePath, __DIR__)) {
-    // Создаем и заполняем базу данных
-    $db = createDatabase();
-    insertData($db, $csvFilePath);
+    try {
+        // Создаем и заполняем базу данных
+        $pdo = new PDO('sqlite:moex_data.db');
+        $result = import_csv_to_sqlite($pdo, $csvFilePath, array(
+            'delimiter' => ';', // Задайте нужный разделитель
+            'table' => 'Trades' // Имя таблицы
+        ));
+        echo "Inserted rows: " . $result['inserted_rows'];
+    } catch (Exception $e) {
+        die("Error: " . $e->getMessage());
+    }
 }
 
 // Перенаправляем обратно на index.php для отображения данных
