@@ -151,7 +151,7 @@ function findCsvFiles($directory) {
 //$directory = ''; // Укажите путь к каталогу, в котором нужно искать файлы
 $url = "https://fs.moex.com/files/18307"; // URL для скачивания данных
 $zipFilePath = "data.zip"; // Путь к ZIP файлу
-$csvFilePath = "Order.csv"; // Путь к CSV файлу
+$csvFilePath = "OrderLog20181229.csv"; // Путь к CSV файлу
 
 // Скачиваем и распаковываем данные
 downloadFile($url, $zipFilePath);
