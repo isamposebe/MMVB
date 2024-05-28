@@ -64,7 +64,7 @@ function insertData($db, $filePath) {
         $db->exec('BEGIN TRANSACTION');
         
         $stmt = $db->prepare("INSERT INTO Trades (_NO, _SECCODE, _BUYSELL, _TIME, _ORDERNO, _ACTION, _PRICE, _VOLUME, _TRADENO, _TRADEPRICE) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                              VALUES (:_no, :_seccode, :_buysell, :_time, :_orderno, :_action, :_price, :_volume, :_tradeno, :_tradeprice)");
         
         fgetcsv($handle); // Пропускаем заголовок
         while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
@@ -72,7 +72,12 @@ function insertData($db, $filePath) {
             $no = isset($data[0]) ? SQLite3::escapeString($data[0]) : '';
             $seccode = isset($data[1]) ? SQLite3::escapeString($data[1]) : '';
             $buysell = isset($data[2]) ? SQLite3::escapeString($data[2]) : '';
-            $time = isset($data[3]) ? SQLite3::escapeString($data[3]) : '';
+            
+            // Преобразование временной метки
+            $timestampString = isset($data[3]) ? SQLite3::escapeString($data[3]) : '';
+            $timestamp = intval(rtrim($timestampString, ';'));
+            $time = $timestamp > 0 ? date('Y-m-d H:i:s', $timestamp) : date('Y-m-d H:i:s');
+
             $orderno = isset($data[4]) ? SQLite3::escapeString($data[4]) : '';
             $action = isset($data[5]) ? SQLite3::escapeString($data[5]) : '';
             $price = isset($data[6]) ? SQLite3::escapeString($data[6]) : '';
@@ -90,7 +95,17 @@ function insertData($db, $filePath) {
                 return;
             }
         }
-        
+        // Привязка значений к параметрам запроса
+        $stmt->bindValue(':no', $no, SQLITE3_INTEGER);
+        $stmt->bindValue(':seccode', $seccode, SQLITE3_TEXT);
+        $stmt->bindValue(':buysell', $buysell, SQLITE3_TEXT);
+        $stmt->bindValue(':time', $time, SQLITE3_TEXT);
+        $stmt->bindValue(':orderno', $orderno, SQLITE3_INTEGER);
+        $stmt->bindValue(':action', $action, SQLITE3_INTEGER);
+        $stmt->bindValue(':price', $price, SQLITE3_FLOAT);
+        $stmt->bindValue(':volume', $volume, SQLITE3_INTEGER);
+        $stmt->bindValue(':tradeno', $tradeno, SQLITE3_TEXT);
+        $stmt->bindValue(':tradeprice', $tradeprice, SQLITE3_TEXT);
         
         // Завершаем транзакцию
         $db->exec('COMMIT TRANSACTION');
