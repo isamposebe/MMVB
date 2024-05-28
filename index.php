@@ -14,6 +14,15 @@
             padding: 8px;
             text-align: left;
         }
+        th {
+            cursor: pointer;
+        }
+        #searchInput {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -23,6 +32,8 @@
     <form action="load_data.php" method="post">
         <button type="submit">Загрузить данные</button>
     </form>
+
+    <input type="text" id="searchInput" placeholder="Поиск...">
 
     <?php
     // Подключаемся к базе данных SQLite
