@@ -63,7 +63,7 @@
 
     <table id="dataTable">
         <thead>
-        <tr>
+            <tr>
                 <th onclick="sortTable(0)">NO</th>
                 <th onclick="sortTable(1)">SECCODE</th>
                 <th onclick="sortTable(2)">BUYSELL</th>
@@ -74,28 +74,23 @@
                 <th onclick="sortTable(7)">VOLUME</th>
                 <th onclick="sortTable(8)">TRADENO</th>
                 <th onclick="sortTable(9)">TRADEPRICE</th>
-        </tr>
+            </tr>
         </thead>
         <tbody>
             <?php
             foreach ($rows as $row) {
-                    echo "<tr>";
-                    echo "<td>" . htmlspecialchars($row['_NO']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_SECCODE']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_BUYSELL']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_TIME']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_ORDERNO']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_ACTION']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_PRICE']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_VOLUME']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_TRADENO']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['_TRADEPRICE']) . "</td>";
-                    echo "</tr>";
-                }
-                
-                echo "</tbody></table>";
-            } else {
-                echo "Пока не было запросов";
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($row['_NO']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_SECCODE']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_BUYSELL']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_TIME']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_ORDERNO']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_ACTION']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_PRICE']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_VOLUME']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_TRADENO']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['_TRADEPRICE']) . "</td>";
+                echo "</tr>";
             }
             ?>
         </tbody>
